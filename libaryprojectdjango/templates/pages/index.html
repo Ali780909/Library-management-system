@@ -1,0 +1,427 @@
+{% extends 'base.html'%}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html  lang="ar">
+
+
+
+  <!-- في المكان ده هحط الناف بار -->
+
+
+
+
+  <!-- في المكان ده هحط المحتوى -->
+
+
+  <div style="direction: rtl;" class="wrapper">
+
+
+
+
+    <!-- Content Wrapper. Contains page content -->
+    <div   class="content-wrapper">
+      <!-- Content Header (Page header) -->
+
+
+      <!--الاحصائيات-->
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="card">
+                <div class="card-header border-0">
+                  <div class="d-flex justify-content-between">
+                    <h3 class="card-title">اجمالي عدد الكتب</h3>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex">
+                    <p class="d-flex flex-column">
+                      <span class="text-bold text-lg">{{allbooks}}</span>
+                      <span>اجمالي عدد الكتب</span>
+                    </p>
+                  </div>
+                  <!-- /.d-flex -->
+
+                  <div class="position-relative mb-4">
+                    <canvas id="visitors-chart" height="200"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card -->
+            </div>
+            <!-- /.col-md-6 -->
+           {% for book in books %}
+             {% if book.price != None  %}
+             {% if book.status == 'sold' %}
+                <p class="totalprice">{{book.price}}</p>
+             {% endif %}
+             {% endif %}
+             {% if book.total_rental != None %}
+             {% if book.status == 'rental' %}
+                <p class="totalprice">{{book.total_rental}}</p>
+             {% endif %}
+             {% endif %}
+           {% endfor%}
+            <div class="col-lg-6">
+              <div class="card">
+                <div class="card-header border-0">
+                  <div class="d-flex justify-content-between">
+                    <h3 class="card-title">الارباح</h3>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex">
+                    <p class="d-flex flex-column">
+                      <span id="totalsalarys" class="text-bold text-lg"></span><br></p>
+                  </div>
+                  <!-- /.d-flex -->
+
+                  <div class="position-relative mb-4">
+                    <canvas id="sales-chart" height="160"></canvas>
+                  </div>
+
+                  <div class="d-flex flex-row justify-content-end">
+                    <span class="mr-2">
+                      <i class="fas fa-square text-primary"></i> الاربح من بيع الكتب
+                      <p id="soldtotals"></p>
+                    </span>
+                    <span>
+                      <i class="fas fa-square text-gray"></i> الارباح من استعارة الكتب
+                      <p id="rentedtotals"></p>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- /.col-md-6 -->
+          </div>
+          <!-- /.row -->
+
+          <!-- form add books -->
+          <div class="row m-1 mb-3">
+            <a href="#bookform" class="btn btn-primary" data-toggle="collapse">+ اضافة كتاب</a>
+          </div>
+
+          <div id="bookform" class="card card-primary collapse">
+            <div class="card-header">
+              <h3 class="card-title">اضافة كتاب</h3>
+            </div>
+            <!-- /.card-header -->
+            <!-- form start -->
+            <form method="POST" enctype="multipart/form-data"  >
+            {% csrf_token %}
+              <div class="card-body">
+              {{form}}
+              </div>
+              <!-- /.card-body -->
+              <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Add</button>
+              </div>
+            </form>
+          </div>
+
+                <!-- /.card -->
+          </div>
+          <!-- end form add books -->
+
+
+          <!-- تصنيفات-->
+
+          <div class="row justify-content-center mb-3">
+            <div class="col-4 ">
+              <ul class="nav">
+            {% for fun in category|slice:'4' %}
+                <li class="nav-item fun{{fun.id}} ">
+                  <a id="" class="nav-link bg-primary" href="#">{{fun.name}}</a>
+                </li>
+            {% endfor%}
+
+              </ul>
+            </div>
+          </div>
+          <!-- books -->
+
+          <div class="row">
+
+
+         {% for book in books %}
+          <!-- الكتب -->
+              <div   class="col-md-4 bookhide book{{book.category.id}} book{{book.status}}">
+                  <!-- Widget: user widget style 1 -->
+                <div id="" class="card card-widget widget-user ">
+                  <!-- Add the bg color to the header using any of the bg-* classes -->
+                <!-- قائمة منسدلة -->
+                <div style="position: absolute;" class="btn-group">
+                  <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{% url 'update' book.id %}">Edit</a>
+                    <a class="dropdown-item" href="{% url 'delete' book.id %}">Delete</a>
+                <!-- Button trigger modal -->
+                  </div>
+                </div>
+
+                <div style="background: url({{book.photo_book.url}}); background-size: cover" class="widget-user-header bg-info">
+                  <h3 class="widget-user-username">{{book.tittle}}</h3>
+                  <h5 class="widget-user-desc">{{book.author}} </h5>
+                </div>
+                <div class="widget-user-image">
+                {% if book.photo_author %}
+                  <img style="width:100px; height: 100px;" class="img-circle elevation-2" src="{{book.photo_author.url}}" alt="User Avatar">
+                {% endif%}
+                </div>
+                <div class="card-footer">
+                  <div class="row">
+                    <div class="col-sm-4 border-right">
+                      <div class="description-block">
+                        <h5 class="description-header">{{book.pages}}</h5>
+                        <span class="description-text">page</span>
+                      </div>
+                      <!-- /.description-block -->
+                    </div>
+                        <!-- /.col -->
+                    <div class="col-sm-4 border-right">
+                      <div class="description-block">
+                      {% if book.price%}
+                        <h5 class="description-header">{{book.price}}</h5>
+                        <span class="description-text">price</span>
+                      {% elif book.retal_price_day %}
+                        <h5 class="description-header">{{book.retal_price_day}}</h5>
+                        <span class="description-text">in day</span>
+                      {% endif  %}
+                      </div>
+                      <!-- /.description-block -->
+                    </div>
+                        <!-- /.col -->
+                    <div class="col-sm-4">
+                      <div class="description-block">
+                      {% if book.status == 'available' %}
+                        <h5 class="description-header text-success">{{book.status}} </h5>
+                        <span class="description-text">status</span>
+                      {% elif book.status == 'rental' %}
+                        <h5 class="description-header text-warning">{{book.status}} </h5>
+                        <span class="description-text">status</span>
+                      {% else %}
+                          <h5 class="description-header text-danger">{{book.status}} </h5>
+                         <span class="description-text">status</span>
+                      {% endif%}
+                      </div>
+                      <!-- /.description-block -->
+                    </div>
+                        <!-- /.col -->
+                  </div>
+                      <!-- /.row -->
+                </div>
+                </div>
+                  <!-- /.widget-user -->
+              </div>
+              </div>
+          <!-- نهاية الكتاب -->
+        {% endfor %}
+
+
+              <div class="row">
+                <div class="col text-center">
+                  <!--اضف صورة هنا في حالة عدم وجود كتب-->
+                </div>
+              </div>
+
+
+        <!-- /.container-fluid -->
+  </div>
+      <!-- /.content -->
+</div>
+    <!-- /.content-wrapper -->
+
+
+
+  <!-- في المكان ده هحط footer -->
+      <!-- Main Footer -->
+  <footer class="main-footer">
+    <strong>Copyright &copy; 2020-2021 <a href="https://www.facebook.com/abdelrahman.g.nofal">Ali Abd El_Rahim</a>.</strong>
+    All rights reserved.
+    <div class="float-right d-none d-sm-inline-block">
+        <a target="_blank" class="text-danger" href="https://www.youtube.com/channel/UCbQh1yxBPVhyjB-G_blFFEQ"><i class="fab fa-lg fa-youtube"></i></a>
+        <a target="_blank" href="https://www.facebook.com/abdelrahman.g.nofal"><i class="fab fa-lg ml-1 fa-facebook"></i></a>
+        <a target="_blank" class="text-warning" href="https://www.instagram.com/abdelrahman_noufal/"><i class="fab fa-lg ml-1 fa-instagram"></i></a>
+    </div>
+  </footer>
+  </div>
+  <!-- ./wrapper -->
+
+
+<!-- REQUIRED SCRIPTS -->
+<script src="plugins/jquery_datepacker/jquery_ui.js"></script>
+
+<!-- jQuery -->
+<script src="plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE -->
+<script src="dist/js/adminlte.js"></script>
+<!-- OPTIONAL SCRIPTS -->
+
+<script src="plugins/chart.js/Chart.min.js"></script>
+
+<script src="dist/js/demo.js"></script>
+<!--<script src="dist/js/pages/dashboard3.js'"></script>
+-->
+<script>
+  $(document).ready(function(){
+    $('#myModal').on('shown.bs.modal', function () {
+      $('#myInput').trigger('focus')
+    });
+/*here i will make loop for get id category and status for contact with books */
+/*حساب اجمالي الارباح و هي عبارة عن حاصل جمع سعر الكتب عند البيع بالاضافة الى سعر استعارة الكتاب*/
+  });
+</script>
+<script>
+
+
+
+
+$(function () {
+  'use strict'
+
+  var ticksStyle = {
+    fontColor: '#495057',
+    fontStyle: 'bold'
+  }
+
+  var mode      = 'index'
+  var intersect = true
+
+  var $salesChart = $('#sales-chart')
+
+  var salesChart  = new Chart($salesChart, {
+
+    type   : 'bar',
+
+    data   : {
+
+      labels  : [
+
+
+        'تفاصيل الارباح',
+
+      ],
+
+
+      datasets: [
+        {
+          backgroundColor: '#007bff',
+          borderColor    : '#007bff',
+          data           : [
+               '50',
+          ]
+        },
+        {
+          backgroundColor: '#ced4da',
+          borderColor    : '#ced4da',
+          data           : [
+                '30',
+          ]
+        }
+      ]
+    },
+
+
+
+   options: {
+      maintainAspectRatio: false,
+      tooltips           : {
+        mode     : mode,
+        intersect: intersect
+      },
+      hover              : {
+        mode     : mode,
+        intersect: intersect
+      },
+      legend             : {
+        display: false
+      },
+      scales             : {
+        yAxes: [{
+          // display: false,
+          gridLines: {
+            display      : true,
+            lineWidth    : '4px',
+            color        : 'rgba(0, 0, 0, .2)',
+            zeroLineColor: 'transparent'
+          },
+          ticks    : $.extend({
+            beginAtZero: true,
+
+            // Include a dollar sign in the ticks
+            callback: function (value, index, values) {
+              if (value >= 1000) {
+                value /= 1000
+                value += 'k'
+              }
+              return '$' + value
+            }
+          }, ticksStyle)
+        }],
+        xAxes: [{
+          display  : true,
+          gridLines: {
+            display: false
+          },
+          ticks    : ticksStyle
+        }]
+      }
+    }
+  });
+
+ var pieChart = document.getElementById('visitors-chart').getContext('2d')
+
+  var myPieChart = new Chart(pieChart, {
+    type: 'pie',
+    data: {
+      datasets: [{
+        data: ['35','25','40'],
+        backgroundColor :["#27c100","#f3545d","#fdaf4b"],
+        borderWidth: 10,
+
+      }],
+      labels: ['Available', 'Sold', 'Rented']
+    },
+    options : {
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: {
+        position : 'bottom',
+        labels : {
+          fontColor: '#000',
+          fontSize: 15,
+          usePointStyle : true,
+          padding:30
+        }
+      },
+      pieceLabel: {
+        render: 'percentage',
+        fontColor: 'white',
+        fontSize: 14,
+      },
+
+
+    }
+  })
+
+})
+
+
+
+</script>
+
+</body>
+</html>
+
+{% endblock %}
+
+
